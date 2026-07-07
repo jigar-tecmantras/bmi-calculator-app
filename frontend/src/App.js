@@ -3,23 +3,23 @@ import './App.css';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
-const categoryDefinitions = [
-  {
-    max: 18.5,
-    label: 'Underweight',
-    suggestion: 'Consider consuming balanced meals with more calorie-dense foods and check in with a nutrition professional.',
+const categoryStyles = {
+  Underweight: {
+    color: '#0369a1',
+    background: 'linear-gradient(140deg, rgba(14,165,233,0.15), rgba(14,165,233,0.05))',
+    border: '1px solid rgba(14,165,233,0.35)',
   },
-  {
-    max: 24.9,
-    label: 'Normal',
-    suggestion: 'Maintain your habits, stay active, and keep up with regular health screenings to stay on track.',
+  Normal: {
+    color: '#047857',
+    background: 'linear-gradient(140deg, rgba(16,185,129,0.15), rgba(74,222,128,0.05))',
+    border: '1px solid rgba(16,185,129,0.35)',
   },
-  {
-    max: Infinity,
-    label: 'Overweight',
-    suggestion: 'Incorporate more movement, prioritize whole foods, and talk to your physician before major changes.',
+  Overweight: {
+    color: '#b91c1c',
+    background: 'linear-gradient(140deg, rgba(239,68,68,0.15), rgba(251,113,133,0.05))',
+    border: '1px solid rgba(239,68,68,0.35)',
   },
-];
+};
 
 function App() {
   const [unit, setUnit] = useState('metric');
@@ -87,11 +87,11 @@ function App() {
   return (
     <main className="app-shell">
       <section className="card">
-        <header>
-          <p className="eyebrow">Health companion</p>
-          <h1>Clean BMI Calculator</h1>
+        <header className="card-header">
+          <p className="eyebrow">Wellness dashboard</p>
+          <h1>Clean BMI calculator</h1>
           <p className="lead">
-            Enter your height and weight, pick a unit, and get a friendly summary, category, and suggestion.
+            Enter your height, weight, and preferred unit to receive an instant BMI snapshot with contextual guidance.
           </p>
         </header>
 
@@ -109,27 +109,29 @@ function App() {
         </div>
 
         <form className="form" onSubmit={handleSubmit}>
-          <label>
-            <span>{unitSettings.heightLabel}</span>
-            <input
-              type="number"
-              inputMode="decimal"
-              value={height}
-              placeholder={unitSettings.placeholderHeight}
-              onChange={(event) => setHeight(event.target.value)}
-            />
-          </label>
+          <div className="input-grid">
+            <label>
+              <span>{unitSettings.heightLabel}</span>
+              <input
+                type="number"
+                inputMode="decimal"
+                value={height}
+                placeholder={unitSettings.placeholderHeight}
+                onChange={(event) => setHeight(event.target.value)}
+              />
+            </label>
 
-          <label>
-            <span>{unitSettings.weightLabel}</span>
-            <input
-              type="number"
-              inputMode="decimal"
-              value={weight}
-              placeholder={unitSettings.placeholderWeight}
-              onChange={(event) => setWeight(event.target.value)}
-            />
-          </label>
+            <label>
+              <span>{unitSettings.weightLabel}</span>
+              <input
+                type="number"
+                inputMode="decimal"
+                value={weight}
+                placeholder={unitSettings.placeholderWeight}
+                onChange={(event) => setWeight(event.target.value)}
+              />
+            </label>
+          </div>
 
           <button type="submit" className="primary" disabled={loading}>
             {loading ? 'Calculating…' : 'Get BMI'}
@@ -138,19 +140,28 @@ function App() {
 
         {error && <p className="error">{error}</p>}
 
-        {result && (
-          <article className="result-card">
-            <div className="result-header">
-              <p>BMI</p>
-              <strong>{result.bmi.toFixed(1)}</strong>
+        <div className="result-panel" aria-live="polite">
+          <div className="result-heading">
+            <p className="result-label">BMI result</p>
+            {result && (
+              <span className="category-badge" style={categoryStyles[result.category] || {}}>
+                {result.category}
+              </span>
+            )}
+          </div>
+
+          {result ? (
+            <div className="result-content">
+              <p className="bmi-value">{result.bmi.toFixed(1)}</p>
+              <p className="suggestion">{result.suggestion}</p>
             </div>
-            <p className="category">{result.category}</p>
-            <p className="suggestion">{result.suggestion}</p>
-          </article>
-        )}
+          ) : (
+            <p className="result-placeholder">Your BMI will be displayed here once you submit the form.</p>
+          )}
+        </div>
 
         <footer className="footer-note">
-          BMI is a starting point for tracking wellness. Discuss any major transitions with your provider.
+          This calculator provides an initial overview. For medical advice, consult a licensed provider.
         </footer>
       </section>
     </main>
